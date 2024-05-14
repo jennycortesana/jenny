@@ -1,20 +1,24 @@
-name: Check for secrets with Gitleaks
+name: Gitleaks Scan
 
-on: [push, pull_request]
+on:
+  push:
+    branches:
+      - main
 
 jobs:
-  gitleaks:
+  gitleaks-scan:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Install Gitleaks
+      - name: Setup GitLeaks
         run: |
-          curl -sSL https://github.com/gitleaks/gitleaks/releases/latest/download/gitleaks-linux-amd64.tar.gz | tar -xz
-          sudo mv gitleaks /usr/local/bin/
+          curl -L -o gitleaks.tar.gz https://github.com/zricethezav/gitleaks/releases/latest/download/gitleaks-linux-amd64.tar.gz
+          tar -xzf gitleaks.tar.gz
+          chmod +x gitleaks
 
-      - name: Run Gitleaks
+      - name: Scan for leaks
         run: |
-          gitleaks detect --source . --exit-code 1
+          ./gitleaks --path=. --config=.gitleaks.toml
+
